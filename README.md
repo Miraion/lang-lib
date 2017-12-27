@@ -1,4 +1,4 @@
-# lang-lib
+# Lang Library Overview
 A collection of objects and functions which extend the C++ standard library. 
 
 There is no real direct purpose for this library. It's just a collection of experimental code that may or may not be useful later on.
@@ -12,5 +12,12 @@ To force all methods, functions, and variables inline (C++17 only) define the fo
 #define __LANG_FORCE_INLINE
 ```
 
+Other than that, all that is required is to simply include the library header files.
+
+The all classes and functions are defined in the namespace `lang` with fundamental implementation defined in `lang::__1`.
+
+The code style is designed to mimic the standard library as best as possible.
+
 ## Language Specifications
 * C++17 with C++14 support
+* Supported OS: macOS, Linux, Windows(maybe, untested)
