@@ -35,7 +35,7 @@ add_library(lang_lib
         lang/temporal.hpp
         lang/memory.hpp
         lang/foundation/__ref_types.hpp
-        lang/foundation/__basic_capture_set.hpp lang.hpp)
+        lang.hpp lang/thread.hpp lang/foundation/__thread_t.hpp lang/foundation/__meta.hpp)
 
 add_executable(test_exe test.cpp)
 target_link_libraries(test_exe lang_lib)

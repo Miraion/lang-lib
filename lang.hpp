@@ -21,6 +21,7 @@
 #include "lang/random.hpp"
 #include "lang/stack.hpp"
 #include "lang/temporal.hpp"
+#include "lang/thread.hpp"
 #include "lang/tracer.hpp"
 #include "lang/tsafe_attr.hpp"
 #include "lang/vector.hpp"

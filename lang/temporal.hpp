@@ -74,9 +74,9 @@
 
  */
 
-#include <thread>
 #include <string>
 #include "foundation/__base.hpp"
+#include "thread.hpp"
 
 __LANG_NAMESPACE
 
@@ -260,7 +260,8 @@ __LANG_NAMESPACE
     private:
 
         unsigned long __count_ = 0;
-        pthread_t __thread_{};
+        unsigned long __ratio_ = Precision;
+        mutating_thread<unsigned long, unsigned long, bool> __thread_;
         bool __interrupt_ = false;
 
         struct __t_attr {
@@ -269,9 +270,22 @@ __LANG_NAMESPACE
             size_t ratio;
         };
 
+        static void __t_count(mutable_capture<unsigned long> c,
+                              mutable_capture<unsigned long> r,
+                              mutable_capture<bool> i)
+        {
+            unsigned long count = 0;
+            while(!(*i)) {
+                thread_sleep_nano(*r);
+                ++count;
+            }
+            *c += count;
+            pthread_exit(nullptr);
+        }
+
     public:
 
-        clock() = default;
+        clock();
         clock(clock<Precision> const &other) = default;
 
         void start();
@@ -284,33 +298,21 @@ __LANG_NAMESPACE
 
     template<time_t Precision>
     inline
+    clock<Precision>::clock()
+            : __thread_(create_mutating_thread(__t_count, &__count_, &__ratio_, &__interrupt_))
+    {}
+
+    template<time_t Precision>
+    inline
     void
     clock<Precision>::start()
     {
         __interrupt_ = false;
-        size_t ratio = 0;
         // correct for computational time
         if (Precision == milliseconds)
-            ratio = 740000;
-        else
-            ratio = Precision;
+            __ratio_ = 740000;
 
-        auto t_arg = new __t_attr{&__count_, &__interrupt_, ratio};
-        pthread_create(&__thread_, nullptr, [](void *arg) -> void *{
-            auto count_ptr = ((__t_attr *) arg)->c;
-            auto interrupt = ((__t_attr *) arg)->b;
-            auto r = ((__t_attr *) arg)->ratio;
-            delete (__t_attr *)arg;
-
-            unsigned long count = 0;
-            while (!(*interrupt)) {
-                lang::thread_sleep_nano(r);
-                ++count;
-            }
-
-            *count_ptr += count;
-            pthread_exit(nullptr);
-        }, t_arg);
+        __thread_.start();
     }
 
     template<time_t Precision>
@@ -319,7 +321,7 @@ __LANG_NAMESPACE
     clock<Precision>::stop()
     {
         __interrupt_ = true;
-        pthread_join(__thread_, nullptr);
+        __thread_.join();
         return get();
     }
 
