@@ -1,4 +1,4 @@
-﻿#Multithreading Objects
+# Multithreading Objects
 > Defined in: `lang/thread.hpp`
 
 
@@ -12,8 +12,8 @@ As their names suggest, variables captured by `safe_thread` are readonly, where 
 
 ----------
 
-###Declarations
-####Threads
+### Declarations
+#### Threads
 ```c++
 // namespace lang
 
@@ -24,7 +24,7 @@ template<class... CaptureObjects>
 using mutating_thread = __1::__thread_t<mutable_capture, CaptureObjects...>;
 ```
 
-####Capture Types
+#### Capture Types
 ```c++
 // namespace lang
 // defined in lang/memory.hpp, included by lang/thread.hpp
@@ -41,8 +41,8 @@ Capture types are essentially abstractions of pointers with `weak_capture<T>` co
 Each object overloads `operator*` and `operator->` to provide basic pointer functionality. A `get()` method is also available, which returns the underlying pointer.
 
 ----------
-##Thread Object Specifications
-###Constructors
+## Thread Object Specifications
+### Constructors
 
 `__1::__thread_t`, the generic class that both thread types specialize, has a trivial default and copy constructor along with one explicit constructor as seen below.
 
@@ -70,9 +70,9 @@ lang::safe_thread<int, double> thread{[](auto x, auto d){});
 ----------
 
 
-###Methods
+### Methods
 
- `void set_func(void(*func)(CaptureType<CaptureObjects>...);`
+`void set_func(void(*func)(CaptureType<CaptureObjects>...);`
 
 Does the same job as the explicit constructor in defining the function to be called when the thread is started.
 
@@ -110,7 +110,7 @@ Provides the same functionality as `pthread_kill`.
 
 ----------
 
-###Non-Member Functions
+### Non-Member Functions
 
 ```c++
 template<class... CaptureObjects>
@@ -130,7 +130,7 @@ This is a helper function that can create a thread without having to explicitly 
 
 ----------
 
-###Example
+### Example
 
 A simple example of  `mutating_thread` which captures 3 integer values, summing up the first two and storing the value in the third.
 
