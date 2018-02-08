@@ -7,7 +7,7 @@
 #include <pthread.h>
 #include <tuple>
 #include "__base.hpp"
-#include "__meta.hpp"
+#include "../int_seq.hpp"
 
 __LANG_SUBSPACE
 
@@ -39,13 +39,6 @@ __LANG_SUBSPACE
         void join();
         void kill();
     };
-
-
-//    template<template<class> class CaptureType, class... CaptureObjects>
-//    inline
-//    __thread_t<CaptureType, CaptureObjects...>::__thread_t(__self const &other)
-//            : __exec_func_(other.__exec_func_), __params_(other.__params_)
-//    {}
 
     template<template<class> class CaptureType, class... CaptureObjects>
     inline

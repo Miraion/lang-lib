@@ -7,6 +7,13 @@
 #include "foundation/__base.hpp"
 #include "foundation/__ref_types.hpp"
 
+#include "memory/allocator_traits.hpp"
+#include "memory/object_traits.hpp"
+#include "memory/heap.hpp"
+#include "memory/pool.hpp"
+#include "memory/hybrid.hpp"
+#include "memory/allocator.hpp"
+
 __LANG_NAMESPACE
 
     template<typename T>
@@ -22,5 +29,11 @@ __LANG_NAMESPACE
     template<typename T>
     inline weak_capture<T> safe_capture(T const &__a)
     { return weak_capture<T>{__a}; }
+
+    template<typename T>
+    using heap_allocator = allocator<T, mem::heap<T>, object_traits<T>>;
+
+    template<typename T>
+    using pool_allocator = allocator<T, mem::pool<T>, object_traits<T>>;
 
 __LANG_NAMESPACE_END

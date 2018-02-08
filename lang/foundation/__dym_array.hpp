@@ -164,6 +164,7 @@
 #include <ostream>
 #include <algorithm>
 #include "__base.hpp"
+#include "../misc.hpp"
 #include "../memory_image.hpp"
 #include "../tsafe_attr.hpp"
 #include "../iterator.hpp"
@@ -264,7 +265,7 @@ __LANG_SUBSPACE
 
         __dym_array(__self const &__a);
 
-        __dym_array(__self&&__a) noexcept;
+        __dym_array(__self &&__a) noexcept;
 
         template<typename ... _Ts>
         explicit __dym_array(_Ts ... _ts);
@@ -272,6 +273,10 @@ __LANG_SUBSPACE
         explicit __dym_array(size_type __n);
 
         ~__dym_array();
+
+        __self &operator=(__self const &__a);
+
+        __self &operator=(__self &&__a) noexcept;
 
         bool operator==(__self const &other) const;
 
@@ -337,11 +342,11 @@ __LANG_SUBSPACE
         inline forward_iterator<value_type> end()
         { return forward_iterator<value_type>{__ptr() + __size_}; }
 
-        inline const_forward_iterator<value_type> const_begin() const
-        { return const_forward_iterator<value_type>{__ptr()}; }
+        inline forward_iterator<value_type, CONST> begin() const
+        { return forward_iterator<value_type, CONST>{__ptr()}; }
 
-        inline const_forward_iterator<value_type> const_end() const
-        { return const_forward_iterator<value_type>{__ptr() + __size_}; }
+        inline forward_iterator<value_type, CONST> end() const
+        { return forward_iterator<value_type, CONST>{__ptr() + __size_}; }
 
         inline reverse_iterator<value_type> rbegin()
         { return reverse_iterator<value_type>{__ptr() + __size_ - 1}; }
@@ -349,21 +354,27 @@ __LANG_SUBSPACE
         inline reverse_iterator<value_type> rend()
         { return reverse_iterator<value_type>{__ptr() - 1}; }
 
-        inline const_reverse_iterator<value_type> const_rbegin() const
-        { return const_reverse_iterator<value_type>{__ptr() + __size_ - 1}; }
+        inline reverse_iterator<value_type, CONST> rbegin() const
+        { return reverse_iterator<value_type, CONST>{__ptr() + __size_ - 1}; }
 
-        inline const_reverse_iterator<value_type> const_rend() const
-        { return const_reverse_iterator<value_type>{__ptr() - 1}; }
+        inline reverse_iterator<value_type, CONST> rend() const
+        { return reverse_iterator<value_type, CONST>{__ptr() - 1}; }
 
-        inline const_forward_strideable_set<value_type> forward() const
-        { return const_forward_strideable_set<value_type>{const_begin(), const_end()}; }
+        inline forward_strideable_set<value_type> forward()
+        { return forward_strideable_set<value_type>{begin(), end()}; }
 
-        inline const_reverse_strideable_set<value_type> reverse() const
-        { return const_reverse_strideable_set<value_type>{const_rbegin(), const_rend()}; }
+        inline forward_strideable_set<value_type, CONST> forward() const
+        { return forward_strideable_set<value_type, CONST>{begin(), end()}; }
 
-        const_forward_strideable_set<value_type> range(size_type lb, size_type ub) const;
+        inline reverse_strideable_set<value_type> reverse()
+        { return reverse_strideable_set<value_type>{rbegin(), rend()}; }
 
-        const_reverse_strideable_set<value_type> reverse_range(size_type lb, size_type ub) const;
+        inline reverse_strideable_set<value_type, CONST> reverse() const
+        { return reverse_strideable_set<value_type, CONST>{rbegin(), rend()}; }
+
+        forward_strideable_set<value_type, CONST> range(size_type lb, size_type ub) const;
+
+        reverse_strideable_set<value_type, CONST> reverse_range(size_type lb, size_type ub) const;
 
         reference front();
 
@@ -423,7 +434,7 @@ __LANG_SUBSPACE
         __ptr() = __alloc_new(__cap_);
 
         loop until(__size_) {
-            __ptr()[i] = __a[i];
+            __alloc().construct(__ptr() + i, __a[i]);
         }
     }
 
@@ -468,6 +479,34 @@ __LANG_SUBSPACE
             __alloc().destroy(__ptr() + i);
         }
         __dealloc(__ptr(), __cap_);
+    }
+
+    __LANG_ALLOC_TEMPLATE(_Tp, _Allocator)
+    inline
+    typename __dym_array<_Tp, _Allocator>::__self &
+    __dym_array<_Tp, _Allocator>::operator=(__self const &__a)
+    {
+        this->erase();
+        for (value_type x : __a) {
+            this->emplace_back(std::move(x));
+        }
+        return *this;
+    }
+
+    __LANG_ALLOC_TEMPLATE(_Tp, _Allocator)
+    inline
+    typename __dym_array<_Tp, _Allocator>::__self &
+    __dym_array<_Tp, _Allocator>::operator=(__self &&__a) noexcept
+    {
+        this->erase();
+        this->__dealloc(__ptr(), __cap_);
+        this->__ptr() = __a.__ptr();
+        __a.__ptr() = nullptr;
+        this->__cap_ = __a.__cap_;
+        this->__size_ = __a.__size_;
+        __a.__cap_ = 0;
+        __a.__size_ = 0;
+        return *this;
     }
 
     __LANG_ALLOC_TEMPLATE(_Tp, _Allocator)
@@ -623,7 +662,7 @@ __LANG_SUBSPACE
     {
         while(__cap_ < __size_ + __arr.__size_)
             __alloc_move(__ptr(), __cap_);
-        __move_mem(end().raw(), __arr.__ptr(), __arr.__size_);
+        __move_mem(end(), __arr.__ptr(), __arr.__size_);
         __size_ += __arr.__size_;
         __arr.__size_ = 0;
         __arr.__cap_ = 0;
@@ -779,27 +818,29 @@ __LANG_SUBSPACE
 
     __LANG_ALLOC_TEMPLATE(_Tp, _Allocator)
     inline
-    const_forward_strideable_set<typename __dym_array<_Tp, _Allocator>::value_type>
+    forward_strideable_set<typename __dym_array<_Tp, _Allocator>::value_type, CONST>
     __dym_array<_Tp, _Allocator>::range(size_type lb, size_type ub) const
     {
         if (ub > __size_)
             throw std::out_of_range("dym_array::range: upper bound out of range");
         if (ub <= lb)
             throw std::out_of_range("dym_array::range: upper bound must be > lower bound");
-        return const_forward_strideable_set<value_type>{__ptr() + lb, __ptr() + ub};
+        return forward_strideable_set<value_type, CONST>{__ptr() + lb, __ptr() + ub};
     }
 
     __LANG_ALLOC_TEMPLATE(_Tp, _Allocator)
     inline
-    const_reverse_strideable_set<typename __dym_array<_Tp, _Allocator>::value_type>
+    reverse_strideable_set<typename __dym_array<_Tp, _Allocator>::value_type, CONST>
     __dym_array<_Tp, _Allocator>::reverse_range(size_type lb, size_type ub) const
     {
         if (ub > __size_)
             throw std::out_of_range("dym_array::range: upper bound out of range");
         if (ub <= lb)
             throw std::out_of_range("dym_array::range: upper bound must be > lower bound");
-        return const_reverse_strideable_set<value_type>{__ptr() + ub - 1, __ptr() + lb - 1};
+        return reverse_strideable_set<value_type, CONST>{__ptr() + ub - 1, __ptr() + lb - 1};
     }
+
+    // TODO: Add non-const overloads for range and reverse_range
 
     __LANG_ALLOC_TEMPLATE(_Tp, _Allocator)
     inline

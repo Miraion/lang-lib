@@ -9,6 +9,6 @@
 __LANG_NAMESPACE
 
     template<class _Tp, template<class> class _Allocator = std::allocator>
-    using array = __1::__dym_array<_Tp, _Allocator>;
+    using _list = __1::__dym_array<_Tp, _Allocator>;
 
 __LANG_NAMESPACE_END

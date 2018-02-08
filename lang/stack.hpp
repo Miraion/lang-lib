@@ -32,17 +32,31 @@ __LANG_NAMESPACE
         using __base::alloc_size;
         using __base::empty;
         using __base::erase;
+        using __base::last;
+
+        bool operator==(stack<_Tp, _Allocator> const &other) const;
+        inline bool operator!=(stack<_Tp, _Allocator> const &other) const
+        { return !(*this == other); }
 
         template<class T, template<class> class A>
         friend std::ostream &operator<<(std::ostream &os, stack<T, A> const &q) {
             os << dynamic_cast<__1::__dym_array<T, A> const &>(q);
             return os;
         }
-
-#ifdef __LANG_STD_17
-        using __base::last;
-#endif
-
     };
+
+    __LANG_ALLOC_TEMPLATE(_Tp, _Allocator)
+    inline
+    bool
+    stack<_Tp, _Allocator>::operator==(stack<_Tp, _Allocator> const &other) const
+    {
+        if (other.size() != size())
+            return false;
+        loop until(size()) {
+            if (this->at(i) != other.at(i))
+                return false;
+        }
+        return true;
+    }
 
 __LANG_NAMESPACE_END

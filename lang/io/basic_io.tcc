@@ -14,7 +14,7 @@ __LANG_NAMESPACE
 
     con_inline int getc() {
         int x = 0;
-        read(0, &x, 4);
+        read(0, &x, 1);
         return x;
     }
 

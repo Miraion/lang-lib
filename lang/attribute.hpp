@@ -51,6 +51,7 @@ public:
 */
 
 #include "foundation/__base.hpp"
+#include "misc.hpp"
 
 __LANG_NAMESPACE
 

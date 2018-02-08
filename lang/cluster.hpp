@@ -6,7 +6,7 @@
 
 #include <memory>
 #include "foundation/__base.hpp"
-#include "array.hpp"
+#include "list.hpp"
 
 __LANG_NAMESPACE
 
@@ -19,7 +19,7 @@ __LANG_NAMESPACE
 
         typedef cluster_element<Params...> elem_t;
 
-        array<std::weak_ptr<elem_t>> elements{};
+        _list<std::weak_ptr<elem_t>> elements{};
 
     public:
 
@@ -44,7 +44,7 @@ __LANG_NAMESPACE
     void
     cluster_core<Params...>::call(Params&&... params)
     {
-        array<size_t> invalid_indices{};
+        _list<size_t> invalid_indices{};
         loop until(elements.size()) {
             if (auto e = elements[i].lock()) {
                 e->__on_call(params...);

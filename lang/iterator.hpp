@@ -1,229 +1,126 @@
 //
-// Created by Jeremy S on 2017-12-15.
+// Created by Jeremy S on 2018-01-11.
 //
 
 #pragma once
 
-/*
-
-        iterator.hpp synopsis
-
- namespace lang::__1
- {
-
- template<class T, bool Const>
- class __basic_iterator {
- public:
-
-     typedef T                                                      value_type;
-     typedef typename std::conditional<Const, const T*, T*>::type   pointer;
-     typedef typename std::conditional<Const, const T&, T&>::type   reference;
-
- protected:
-
-     typedef __basic_iterator<T, Const>                             basic_self;
-
-     pointer __ptr_;
-
- public:
-
-    __basic_iterator(basic_self const &) = default;
-    explicit __basic_iterator(value_type *);
-
-    template<bool _Const>
-    bool operator==(__basic_iterator<T, _Const> const &other) const;
-    template<bool _Const>
-    bool operator!=(__basic_iterator<T, _Const> const &other) const;
-
-    pointer operator->();
-    reference operator*();
-    pointer raw() const;
-    template<bool _Const>
-    size_t distance(__basic_iterator<T, _Const> const &other) const;
-
-    template<class _T, class _C>
-    friend std::ostream &operator<<(std::ostream &, __basic_iterator<_T, _C> const &);
-
- }; // class __basic_iterator<T, Const>
-
-
- template<class Iterator>
- class __basic_strideable_set {
- public:
-
-     typedef Iterator                           iterator_type;
-     typedef typename iterator_type::value_type value_type;
-
- private:
-
-     iterator_type __begin_;
-     iterator_type __end_;
-
- public:
-
-     __basic_strideable_set(iterator_type const &, iterator_type const &);
-     __basic_strideable_set(value_type *, value_type *);
-
-     iterator_type begin();
-     iterator_type end();
-
-     size_t size() const;
-
-     typename iterator_type::reference operator[](size_t);
-
- }; // class __basic_strideable_set<Iterator>
-
-
- template<class T, bool Const>
- class __forward_iterator : public __basic_iterator<T, Const> {
- private:
-
-     typedef typename __basic_iterator<T, Const>::pointer   pointer
-     typedef __forward_iterator<T, Const>                   self
-
- public:
-
-     explicit __forward_iterator(T *);
-
-     void advance();
-     self &operator++();
-     self operator++(int);
-     self opeartor+(size_t) const;
-     self operator-(size_t) const;
-
- };
-
- template<class T, bool Const>
- class __reverse_iterator : public __basic_iterator<T, Const> {
- private:
-
-     typedef typename __basic_iterator<T, Const>::pointer   pointer
-     typedef __reverse_iterator<T, Const>                   self
-
- public:
-
-     explicit __reverse_iterator(T *);
-
-     void advance();
-     self &operator++();
-     self operator++(int);
-     self opeartor+(size_t) const;
-     self operator-(size_t) const;
-
- };
-
- } // namespace lang::__1
-
-
- namespace lang
- {
-
- template<class T>
- using forward_iterator = __1::__forward_iterator<T, false>;
-
- template<class _Tp>
- using reverse_iterator = __1::__reverse_iterator<_Tp, false>;
-
- template<class _Tp>
- using const_forward_iterator = __1::__forward_iterator<_Tp, true>;
-
- template<class _Tp>
- using const_reverse_iterator = __1::__reverse_iterator<_Tp, true>;
-
- template<class _Tp>
- using forward_strideable_set = __1::__basic_strideable_set<forward_iterator<_Tp>>;
-
- template<class _Tp>
- using reverse_strideable_set = __1::__basic_strideable_set<reverse_iterator<_Tp>>;
-
- template<class _Tp>
- using const_forward_strideable_set = __1::__basic_strideable_set<const_forward_iterator<_Tp>>;
-
- template<class _Tp>
- using const_reverse_strideable_set = __1::__basic_strideable_set<const_reverse_iterator<_Tp>>;
-
- }
-
- */
-
 #include "foundation/__base.hpp"
-#include <ostream>
+#include "operand.hpp"
+#include "misc.hpp"
 
 __LANG_SUBSPACE
 
     template<class _Tp, bool _Const>
-    class __basic_iterator {
+    class basic_iterator
+            : public comparable<typename std::conditional<_Const, const _Tp *, _Tp *>::type>
+    {
     public:
 
-        typedef _Tp                                                         value_type;
+        typedef _Tp         value_type;
+        typedef const _Tp * const_pointer;
         typedef typename std::conditional<_Const, const _Tp *, _Tp *>::type pointer;
         typedef typename std::conditional<_Const, const _Tp &, _Tp &>::type reference;
 
     protected:
 
-        typedef __basic_iterator<_Tp, _Const>                               __basic_self;
+        typedef basic_iterator<_Tp, _Const> __basic_self;
 
         pointer __ptr_;
 
     public:
 
-        __basic_iterator(__basic_self const &other) = default;
+        basic_iterator();
+        basic_iterator(__basic_self const &__a);
+        explicit basic_iterator(pointer __p);
 
-//        explicit __basic_iterator(value_type *__p);
+        __basic_self &operator=(__basic_self const &__a);
+        __basic_self &operator=(pointer __p);
 
-        explicit __basic_iterator(pointer __p);
+        // Implicit cast to pointer type (either const T* or T*)
+        inline operator pointer() { return __ptr_; }
 
-        template<bool ConstO>
-        bool operator==(__basic_iterator<_Tp, ConstO> const &other) const
-        { return __ptr_ == other.__ptr_; };
-
-        template<bool ConstO>
-        bool operator!=(__basic_iterator<_Tp, ConstO> const &other) const
-        { return !((*this) == other); };
+        bool operator==(pointer const &__a) const override;
+        bool operator<(pointer const &__a) const override;
 
         inline pointer operator->() { return __ptr_; }
-
         inline reference operator*() { return *__ptr_; }
 
-        inline pointer raw() const { return __ptr_; }
+        __basic_self &operator++();
 
-        template<bool ConstO>
-        inline size_t distance(__basic_iterator<_Tp, ConstO> const &other) const
-        { return static_cast<size_t>(lang::abs(other.raw() - raw())); }
-
-        template<class _T, bool _C>
-        friend std::ostream &operator<<(std::ostream &os, __basic_iterator<_T, _C> const &it);
+        virtual void advance() = 0;
+        inline size_t distance(const_pointer __p) const { return lang::abs(__p - __ptr_); }
 
     };
 
-//    template<class _Tp, bool _Const>
-//    inline
-//    __basic_iterator<_Tp, _Const>::__basic_iterator(value_type *__p)
-//            : __ptr_(__p)
-//    {}
 
     template<class _Tp, bool _Const>
     inline
-    __basic_iterator<_Tp, _Const>::__basic_iterator(pointer __p)
+    basic_iterator<_Tp, _Const>::basic_iterator()
+            : __ptr_(nullptr)
+    {}
+
+    template<class _Tp, bool _Const>
+    inline
+    basic_iterator<_Tp, _Const>::basic_iterator(__basic_self const &__a)
+            : __ptr_(__a.__ptr_)
+    {}
+
+    template<class _Tp, bool _Const>
+    inline
+    basic_iterator<_Tp, _Const>::basic_iterator(pointer __p)
             : __ptr_(__p)
     {}
 
-    template<class _T, bool _C>
+    template<class _Tp, bool _Const>
     inline
-    std::ostream &
-    operator<< (std::ostream &os, __basic_iterator<_T, _C> const &it)
+    typename basic_iterator<_Tp, _Const>::__basic_self &
+    basic_iterator<_Tp, _Const>::operator=(__basic_self const &__a)
     {
-        os << it.__ptr_;
-        return os;
+        this->__ptr_ = __a.__ptr_;
+        return *this;
+    }
+
+    template<class _Tp, bool _Const>
+    inline
+    typename basic_iterator<_Tp, _Const>::__basic_self &
+    basic_iterator<_Tp, _Const>::operator=(pointer __p)
+    {
+        this->__ptr_ = __p;
+        return *this;
+    }
+
+    template<class _Tp, bool _Const>
+    inline
+    bool
+    basic_iterator<_Tp, _Const>::operator==(pointer const &__a) const
+    {
+        return __ptr_ == __a;
+    }
+
+    template<class _Tp, bool _Const>
+    inline
+    bool
+    basic_iterator<_Tp, _Const>::operator<(pointer const &__a) const
+    {
+        return __ptr_ < __a;
+    }
+
+    template<class _Tp, bool _Const>
+    inline
+    typename basic_iterator<_Tp, _Const>::__basic_self &
+    basic_iterator<_Tp, _Const>::operator++()
+    {
+        advance();
+        return *this;
     }
 
 
-    template<class _Iterator>
-    class __basic_strideable_set {
+    template<class _Tp, bool _Const, template<class, bool> class _I>
+    class strideable_set {
     public:
 
-        typedef _Iterator                           iterator_type;
-        typedef typename iterator_type::value_type  value_type;
+        typedef _I<_Tp, _Const> iterator_type;
+        typedef typename iterator_type::pointer pointer;
 
     private:
 
@@ -232,160 +129,105 @@ __LANG_SUBSPACE
 
     public:
 
-        __basic_strideable_set(iterator_type __b, iterator_type __e);
+        strideable_set();
+        strideable_set(strideable_set<_Tp, _Const, _I> const &__a) = default;
+        strideable_set(pointer __b, pointer __e);
 
-        __basic_strideable_set(value_type *__b, value_type *__e);
-
-        inline iterator_type begin() { return __begin_; }
-
-        inline iterator_type end() { return __end_; }
+        inline iterator_type begin() const { return __begin_; }
+        inline iterator_type end() const { return __end_; }
 
         inline size_t size() const { return __begin_.distance(__end_); }
 
-        inline typename iterator_type::reference operator[](size_t __i)
-        { return *(begin() + __i); }
-
     };
 
-    template<class _Iterator>
+    template<class _Tp, bool _Const, template<class, bool> class _I>
     inline
-    __basic_strideable_set<_Iterator>::__basic_strideable_set(iterator_type __b, iterator_type __e)
-            : __begin_(__b), __end_(__e)
+    strideable_set<_Tp, _Const, _I>::strideable_set()
+            : __begin_(nullptr), __end_(nullptr)
     {}
 
-    template<class _Iterator>
+    template<class _Tp, bool _Const, template<class, bool> class _I>
     inline
-    __basic_strideable_set<_Iterator>::__basic_strideable_set (value_type *__b, value_type * __e)
+    strideable_set<_Tp, _Const, _I>::strideable_set(pointer __b, pointer __e)
             : __begin_(__b), __end_(__e)
     {}
-
-
-    template<class _Tp, bool _Const>
-    class __forward_iterator : public __basic_iterator<_Tp, _Const> {
-    private:
-
-        typedef typename __basic_iterator<_Tp, _Const>::pointer         pointer;
-        typedef __forward_iterator<_Tp, _Const>                         __self;
-
-    public:
-
-        explicit __forward_iterator(_Tp *__p)
-                : __1::__basic_iterator<_Tp, _Const>(__p)
-        {}
-
-        void advance();
-
-        __self &operator++();
-
-        __self operator++(int);
-
-        inline __self operator+(size_t stride) const { return __self(this->__ptr_ + stride); }
-
-        inline __self operator-(size_t stride) const { return __self(this->__ptr_ - stride); }
-
-    };
-
-    template<class _Tp, bool _Const>
-    inline
-    void
-    __forward_iterator<_Tp, _Const>::advance()
-    {
-        this->__ptr_++;
-    }
-
-    template<class _Tp, bool _Const>
-    typename __forward_iterator<_Tp, _Const>::__self &
-    __forward_iterator<_Tp, _Const>::operator++()
-    {
-        advance();
-        return *this;
-    }
-
-    template<class _Tp, bool _Const>
-    typename __forward_iterator<_Tp, _Const>::__self
-    __forward_iterator<_Tp, _Const>::operator++(int)
-    {
-        __self result{*this};
-        ++(*this);
-        return result;
-    }
-
-    template<class _Tp, bool _Const>
-    class __reverse_iterator : public __basic_iterator<_Tp, _Const> {
-    private:
-
-        typedef typename __1::__basic_iterator<_Tp, _Const>::pointer    pointer;
-        typedef __reverse_iterator<_Tp, _Const>                         __self;
-
-    public:
-
-        explicit __reverse_iterator(pointer __p)
-                : __1::__basic_iterator<_Tp, _Const>(__p)
-        {}
-
-        void advance();
-
-        __self &operator++();
-
-        __self operator++(int);
-
-        inline __self operator+(size_t stride) const { return __self(this->__ptr_ - stride); }
-
-        inline __self operator-(size_t stride) const { return __self(this->__ptr_ + stride); }
-
-    };
-
-    template<class _Tp, bool _Const>
-    inline
-    void
-    __reverse_iterator<_Tp, _Const>::advance()
-    {
-        this->__ptr_--;
-    }
-
-    template<class _Tp, bool _Const>
-    typename __reverse_iterator<_Tp, _Const>::__self &
-    __reverse_iterator<_Tp,  _Const>::operator++()
-    {
-        advance();
-        return *this;
-    }
-
-    template<class _Tp, bool _Const>
-    typename __reverse_iterator<_Tp, _Const>::__self
-    __reverse_iterator<_Tp, _Const>::operator++(int)
-    {
-        __self result{*this};
-        ++(*this);
-        return result;
-    }
 
 __LANG_SUBSPACE_END
 
+#define CONST true
+
 __LANG_NAMESPACE
 
-    template<class _Tp>
-    using forward_iterator = __1::__forward_iterator<_Tp, false>;
+    template<class _Tp, bool _Const = false>
+    class forward_iterator : public __1::basic_iterator<_Tp, _Const> {
+    private:
 
-    template<class _Tp>
-    using reverse_iterator = __1::__reverse_iterator<_Tp, false>;
+        typedef __1::basic_iterator<_Tp, _Const> base;
 
-    template<class _Tp>
-    using const_forward_iterator = __1::__forward_iterator<_Tp, true>;
+    public:
+        typedef typename base::pointer           pointer;
 
-    template<class _Tp>
-    using const_reverse_iterator = __1::__reverse_iterator<_Tp, true>;
+        forward_iterator() = default;
+        explicit forward_iterator(pointer __p) : base(__p) {}
 
-    template<class _Tp>
-    using forward_strideable_set = __1::__basic_strideable_set<forward_iterator<_Tp>>;
+        using base::operator=;
+        using base::operator++;
 
-    template<class _Tp>
-    using reverse_strideable_set = __1::__basic_strideable_set<reverse_iterator<_Tp>>;
+        inline void advance() override
+        { ++this->__ptr_; }
 
-    template<class _Tp>
-    using const_forward_strideable_set = __1::__basic_strideable_set<const_forward_iterator<_Tp>>;
+        forward_iterator<_Tp, _Const> operator++(int);
 
-    template<class _Tp>
-    using const_reverse_strideable_set = __1::__basic_strideable_set<const_reverse_iterator<_Tp>>;
+    };
+
+    template<class _Tp, bool _Const>
+    inline
+    forward_iterator<_Tp, _Const>
+    forward_iterator<_Tp, _Const>::operator++(int)
+    {
+        forward_iterator<_Tp, _Const> result{*this};
+        ++(*this);
+        return result;
+    }
+
+
+    template<class _Tp, bool _Const = false>
+    class reverse_iterator : public __1::basic_iterator<_Tp, _Const> {
+    private:
+
+        typedef __1::basic_iterator<_Tp, _Const> base;
+
+    public:
+        typedef typename base::pointer          pointer;
+
+        reverse_iterator() = default;
+        explicit reverse_iterator(pointer __p) : base(__p) {}
+
+        using base::operator=;
+        using base::operator++;
+
+        inline void advance() override
+        { --this->__ptr_; }
+
+        reverse_iterator<_Tp, _Const> operator++(int);
+
+    };
+
+    template<class _Tp, bool _Const>
+    inline
+    reverse_iterator<_Tp, _Const>
+    reverse_iterator<_Tp, _Const>::operator++(int)
+    {
+        reverse_iterator<_Tp, _Const> result{*this};
+        ++(*this);
+        return result;
+    }
+
+
+    template<class _Tp, bool _Const = false>
+    using forward_strideable_set = __1::strideable_set<_Tp, _Const, forward_iterator>;
+
+    template<class _Tp, bool _Const = false>
+    using reverse_strideable_set = __1::strideable_set<_Tp, _Const, reverse_iterator>;
 
 __LANG_NAMESPACE_END

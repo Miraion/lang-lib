@@ -1,0 +1,36 @@
+//
+// Created by Jeremy S on 2017-12-27.
+//
+
+#pragma once
+
+#include "foundation/__base.hpp"
+#include "any.hpp"
+#include "attribute.hpp"
+#include "cluster.hpp"
+#include "comparison.hpp"
+#include "function.hpp"
+#include "heap.hpp"
+#include "io.hpp"
+#include "iterator.hpp"
+#include "list.hpp"
+#include "matrix.hpp"
+#include "memory.hpp"
+#include "memory_image.hpp"
+#include "optional.hpp"
+#include "parsing.hpp"
+#include "point.hpp"
+#include "point.hpp"
+#include "print.hpp"
+#include "queue.hpp"
+#include "random.hpp"
+#include "seq.hpp"
+#include "singleton.hpp"
+#include "stack.hpp"
+#include "subprocess.hpp"
+#include "sys.hpp"
+#include "temporal.hpp"
+#include "thread.hpp"
+#include "tracer.hpp"
+#include "tsafe_attr.hpp"
+#include "vector.hpp"

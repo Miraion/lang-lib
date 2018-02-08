@@ -5,6 +5,7 @@
 #pragma once
 
 #include "../foundation/__base.hpp"
+#include <termios.h>
 #include <string>
 
 #define IO_BUFFER ICANON
