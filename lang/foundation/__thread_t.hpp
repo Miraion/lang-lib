@@ -81,7 +81,7 @@ __LANG_SUBSPACE
     void
     __thread_t<CaptureType, CaptureObjects...>::kill()
     {
-        pthread_kill(__thread_, 0);
+        pthread_cancel(__thread_);
     }
 
 __LANG_SUBSPACE_END

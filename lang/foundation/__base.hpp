@@ -26,7 +26,7 @@ typedef T const *   const_pointer;  \
 typedef T &         reference;      \
 typedef T const &   const_reference;\
 
-#if _LIBCPP_STD_VER > 14
+#if (_LIBCPP_STD_VER > 14) || (__cplusplus >= 201700L)
 #define __LANG_STD_17
 #endif
 

@@ -71,6 +71,7 @@
  */
 #include "foundation/__base.hpp"
 #include "misc.hpp"
+#include <cstring>
 
 __LANG_SUBSPACE
 

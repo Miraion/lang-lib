@@ -5,7 +5,6 @@
 #pragma once
 
 #include "../foundation/__base.hpp"
-#include <lang/print.hpp>
 
 __LANG_NAMESPACE
 

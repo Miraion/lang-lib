@@ -185,9 +185,9 @@ __LANG_SUBSPACE
 
         lang::compressed_pair<pointer, allocator_type> __alloc_pair{};
 
-        inline pointer &       __ptr()       { return  __alloc_pair.first(); }
-        inline pointer const & __ptr() const { return  __alloc_pair.first(); }
-        inline allocator_type &__alloc()     { return __alloc_pair.second(); }
+        inline pointer &       __ptr()       { return  std::get<0>(__alloc_pair); }
+        inline pointer const & __ptr() const { return  std::get<0>(__alloc_pair); }
+        inline allocator_type &__alloc()     { return std::get<1>(__alloc_pair); }
 
         __basic_dym_array() = default;
 

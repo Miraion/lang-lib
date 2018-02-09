@@ -25,7 +25,7 @@ __LANG_NAMESPACE
 
     // redefinition of std::__1::__compressed_pair
     template<class _T1, class _T2>
-    using compressed_pair = std::__1::__compressed_pair<_T1, _T2>;
+    using compressed_pair = std::tuple<_T1, _T2>;
 
     typedef unsigned char byte;
 

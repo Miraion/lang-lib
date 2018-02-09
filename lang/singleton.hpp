@@ -43,11 +43,11 @@ __LANG_NAMESPACE
     typename singleton<T>::type &
     singleton<T>::instance()
     {
-        if (__instance_) {
-            return *__instance_;
+        if (singleton<T>::__instance_) {
+            return *singleton<T>::__instance_;
         } else {
-            __instance_ = new type{};
-            return *__instance_;
+            singleton<T>::__instance_ = new type{};
+            return *singleton<T>::__instance_;
         }
     }
 
@@ -55,6 +55,9 @@ __LANG_NAMESPACE
 #ifdef __LANG_STD_17
     template<class T>
     inline typename singleton<T>::type *singleton<T>::__instance_ = nullptr;
+#define LANG_DEF_SINGLETON
+#else
+#define LANG_DEF_SINGLETON template<class T> typename lang::singleton<T>::type *lang::singleton<T>::__instance_ = nullptr;
 #endif
 
 __LANG_NAMESPACE_END

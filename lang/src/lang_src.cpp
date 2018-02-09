@@ -5,11 +5,10 @@
 #include "../foundation/__base.hpp"
 
 // Global const and singleton definitions
-#include "../io.hpp"
+#include "../singleton.hpp"
 #include "../optional.hpp"
 #include "../tracer.hpp"
 #include "../temporal.hpp"
-#include "../singleton.hpp"
 
 // Non-template source code
 #include "../io/basic_io.tcc"
@@ -29,8 +28,5 @@ __LANG_NAMESPACE
     const time_t centiseconds = 10 * milliseconds;
     const time_t seconds      = 1000 * milliseconds;
     const time_t minutes      = 60 * seconds;
-
-    template<class T>
-    typename singleton<T>::type *singleton<T>::__instance_ = nullptr;
 __LANG_NAMESPACE_END
 #endif
