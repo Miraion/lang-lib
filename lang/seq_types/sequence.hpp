@@ -47,8 +47,7 @@ __LANG_NAMESPACE
          *
          * @param n : the number of elements for the sequence
          */
-        template<typename I>
-        explicit sequence(I n, value_type v = value_type{});
+        explicit sequence(size_type n, value_type v = value_type{});
 
         template<typename... Ts>
         explicit sequence(Ts... elems);
@@ -112,9 +111,8 @@ __LANG_NAMESPACE
     {}
 
     template<class T, class A>
-    template<typename I>
     inline
-    sequence<T, A>::sequence(I n, value_type v)
+    sequence<T, A>::sequence(size_type n, value_type v)
             : base()
     {
         alloc_begin() = alloc().allocate(n);
