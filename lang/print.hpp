@@ -43,8 +43,8 @@ namespace lang {
          * @param args: format arguments
          */
         template<typename... Ts>
-        inline void _printf(std::string str, Ts... args) {
-            printf(str.c_str(), args...);
+        inline void _printf(std::string *str, Ts... args) {
+            printf(str->c_str(), args...);
         }
 
         /**
@@ -109,8 +109,9 @@ namespace lang {
         template<typename... Ts>
         inline void _print::operator,(const format_args<Ts...> &args) {
             format_mode = true;
-            std::tuple<std::string, Ts...> t = std::tuple_cat(std::make_tuple(buffer.str()), args.tuple);
-            lang::expand_into<void, std::string, Ts...>(_printf, t);
+            std::string str = buffer.str();
+            std::tuple<std::string *, Ts...> t = std::tuple_cat(std::make_tuple(&str), args.tuple);
+            lang::expand_into<void, std::string *, Ts...>(_printf, t);
         }
 
     }

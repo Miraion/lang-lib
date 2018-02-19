@@ -1,9 +1,10 @@
-cmake_minimum_required(VERSION 3.9)
+cmake_minimum_required(VERSION 3.8)
 project(lang_lib)
 
 set(CMAKE_CXX_STANDARD 17)
 
 add_library(lang_lib
+        lang/src/lang_src.cpp
         lang/io/ansi_t.hpp
         lang/any.hpp
         lang/attribute.hpp
@@ -14,7 +15,6 @@ add_library(lang_lib
         lang/point.hpp
         lang/tsafe_attr.hpp
         lang/vector.hpp
-        lang/src/lang_src.cpp
         lang/tracer.hpp
         lang/memory_image.hpp
         lang/list.hpp
@@ -46,7 +46,24 @@ add_library(lang_lib
         lang/parsing.hpp
         lang/src/parsing.tcc
         lang/iterator.hpp
-        lang/operand.hpp lang/seq_types/basic_sequence.hpp lang/memory/object_traits.hpp lang/memory/allocator_traits.hpp lang/memory/heap.hpp lang/seq_types/array.hpp lang/seq_types/sequence.hpp lang/seq_types/list.hpp lang/memory/static_pool.hpp lang/singleton.hpp lang/memory/pool.hpp lang/seq.hpp lang/memory/hybrid.hpp lang/comparison.hpp lang/heap.hpp lang/print.hpp lang/algorithm.hpp lang/priority_queue.hpp)
+        lang/operand.hpp
+        lang/seq_types/basic_sequence.hpp
+        lang/memory/object_traits.hpp
+        lang/memory/allocator_traits.hpp
+        lang/memory/heap.hpp
+        lang/seq_types/array.hpp
+        lang/seq_types/sequence.hpp
+        lang/seq_types/list.hpp
+        lang/memory/static_pool.hpp
+        lang/singleton.hpp
+        lang/memory/pool.hpp
+        lang/seq.hpp
+        lang/memory/hybrid.hpp
+        lang/comparison.hpp
+        lang/heap.hpp
+        lang/print.hpp
+        lang/algorithm.hpp
+        lang/priority_queue.hpp)
 
-add_executable(test_exe test.cpp lang/memory/allocator.hpp)
-target_link_libraries(test_exe lang_lib sqlite3)
+add_executable(test_exe test.cpp lang/src/lang_src.cpp)
+target_link_libraries(test_exe lang_lib sqlite3 pthread)
