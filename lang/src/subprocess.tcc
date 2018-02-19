@@ -25,7 +25,7 @@ __LANG_NAMESPACE
     {}
 
     con_inline void subprocess::start() {
-        __pipe_ = std::shared_ptr<FILE>{popen(__cmd_.c_str(), "r"), pclose};
+        __pipe_ = std::shared_ptr<FILE>{popen((__cmd_ + " 2>&1").c_str(), "r"), pclose};
         if (!__pipe_)
             throw std::runtime_error("error opening pipe");
         __capture_thread_.set_func(cptr);

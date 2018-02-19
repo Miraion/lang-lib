@@ -5,7 +5,7 @@
 #pragma once
 
 #include "../foundation/__base.hpp"
-#include "heap.hpp"
+#include "hybrid.hpp"
 #include "object_traits.hpp"
 
 __LANG_NAMESPACE
